@@ -327,7 +327,16 @@ function App() {
       <div className="sticky top-0 z-50 bg-white border-b border-lark-gray-2 px-4 py-3 shadow-sm">
         <div className="max-w-2xl mx-auto w-full">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-sm font-medium text-lark-gray-7">题目 {progress} / {total}</h1>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setShowQuestionBank(true)}
+                className="sm:hidden px-2 py-1.5 rounded-full bg-lark-primary/10 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-primary/20 transition-colors font-medium"
+              >
+                <Table className="w-3.5 h-3.5" />
+                <span>题库</span>
+              </button>
+              <h1 className="text-sm font-medium text-lark-gray-7">题目 {progress} / {total}</h1>
+            </div>
             <div className="flex items-center gap-2">
               <div className="flex bg-lark-gray-2 rounded-lg p-0.5 mr-1 sm:mr-2">
                 <button
@@ -347,7 +356,7 @@ function App() {
               </div>
               <button 
                 onClick={() => setShowQuestionBank(true)}
-                className="px-2 sm:px-3 py-1.5 rounded-full bg-lark-primary/10 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-primary/20 transition-colors font-medium hover:bg-lark-primary/15"
+                className="hidden sm:flex px-2 sm:px-3 py-1.5 rounded-full bg-lark-primary/10 text-xs text-lark-primary items-center gap-1.5 active:bg-lark-primary/20 transition-colors font-medium hover:bg-lark-primary/15"
                 title="查看完整题库"
               >
                 <Table className="w-3.5 h-3.5" />
