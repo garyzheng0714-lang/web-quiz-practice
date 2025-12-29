@@ -301,6 +301,11 @@ function App() {
               </div>
             </Card>
           )}
+
+          {/* 结果页底部作者信息 */}
+          <div className="mt-8 text-center text-xs text-lark-gray-4">
+              Designed by 清美栖山路三店 方细晶
+          </div>
         </div>
       </div>
     );
@@ -463,6 +468,11 @@ function App() {
               </div>
             )}
           </Card>
+
+          {/* 底部作者信息 */}
+          <div className="mt-6 text-center text-xs text-lark-gray-4 pb-2">
+             Designed by 清美栖山路三店 方细晶
+          </div>
         </div>
       </div>
 
@@ -629,9 +639,48 @@ function App() {
               </button>
             </div>
             
-            {/* Content - Scrollable Table */}
-            <div className="overflow-auto flex-1 p-4 bg-lark-gray-1">
-              <div className="bg-white rounded-lg border border-lark-gray-2 overflow-hidden shadow-sm">
+            {/* Content - Scrollable Table or Cards */}
+            <div className="overflow-auto flex-1 p-0 sm:p-4 bg-lark-gray-1">
+              
+              {/* Mobile View: Cards */}
+              <div className="sm:hidden space-y-3 p-3">
+                {questionsData.map((q, idx) => (
+                  <div key={idx} className="bg-white rounded-lg p-4 shadow-sm border border-lark-gray-2">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-lark-gray-2 text-lark-gray-6 text-xs font-bold">
+                        {idx + 1}
+                      </span>
+                      <span className="inline-flex w-6 h-6 items-center justify-center rounded-full bg-lark-success-bg text-lark-success font-bold text-xs border border-lark-success/20">
+                         {q.answer}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <h4 className="font-medium text-lark-gray-8 text-sm mb-2">{q.question}</h4>
+                      <div className="space-y-1 pl-1 border-l-2 border-lark-gray-2">
+                        {q.options.map((opt, i) => (
+                          <div key={i} className={`text-xs pl-2 py-0.5 ${opt.startsWith(q.answer) ? 'text-lark-primary font-medium bg-lark-primary/5 rounded-r' : 'text-lark-gray-5'}`}>
+                            {opt}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-lark-gray-1 rounded-md p-2.5 text-xs">
+                      <div className="flex items-center gap-1.5 text-lark-gray-6 font-medium mb-1">
+                        <AlertCircle className="w-3 h-3 text-lark-primary" />
+                        <span>解析</span>
+                      </div>
+                      <div className="text-lark-gray-5 leading-relaxed text-justify">
+                        {q.explanation}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop View: Table */}
+              <div className="hidden sm:block bg-white rounded-lg border border-lark-gray-2 overflow-hidden shadow-sm">
                 <table className="w-full text-sm text-left">
                   <thead className="bg-lark-gray-1 text-lark-gray-6 font-medium border-b border-lark-gray-2">
                     <tr>
