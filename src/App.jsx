@@ -3,7 +3,7 @@ import questionsData from './data/questions.json';
 import { Button } from './components/Button';
 import { Card } from './components/Card';
 import { ProgressBar } from './components/ProgressBar';
-import { CheckCircle, XCircle, AlertCircle, RefreshCw, Trophy, ChevronRight, ChevronLeft, BookOpen, LayoutGrid, Zap } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, RefreshCw, Trophy, ChevronRight, ChevronLeft, BookOpen, LayoutGrid, Zap, Table, X } from 'lucide-react';
 
 // Fisher-Yates 洗牌算法
 const shuffleArray = (array) => {
@@ -27,6 +27,7 @@ function App() {
 
   const [mode, setMode] = useState('exam'); // 'exam' | 'practice'
   const [showAnswer, setShowAnswer] = useState(false); // For practice mode peeking
+  const [showQuestionBank, setShowQuestionBank] = useState(false); // 题库概览
 
   // 初始化：加载并打乱题目
   useEffect(() => {
@@ -47,6 +48,22 @@ function App() {
     setQuizFinished(false);
     setIsDrawerOpen(false);
     setShowAnswer(false);
+    setShowQuestionBank(false);
+  };
+
+  const handleModeSwitch = (newMode) => {
+    if (newMode === mode) return;
+    
+    const messages = {
+      exam: "确认切换到【考试模式】吗？\n\n• 答题过程不显示正确答案和解析\n• 必须做完所有题目才能提交\n• 模拟真实考试环境",
+      practice: "确认切换到【背题模式】吗？\n\n• 选择选项后立即显示对错和解析\n• 可随时点击“查看答案”\n• 适合快速刷题记忆"
+    };
+
+    if (window.confirm(messages[newMode])) {
+      setMode(newMode);
+      // 切换模式重置当前题目的显示状态（但保留已选答案）
+      setShowAnswer(false); 
+    }
   };
 
   // 滚动到顶部
@@ -308,18 +325,25 @@ function App() {
             <div className="flex items-center gap-2">
               <div className="flex bg-lark-gray-2 rounded-lg p-0.5 mr-2">
                 <button
-                  onClick={() => setMode('exam')}
+                  onClick={() => handleModeSwitch('exam')}
                   className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${mode === 'exam' ? 'bg-white text-lark-primary shadow-sm' : 'text-lark-gray-5 hover:text-lark-gray-7'}`}
                 >
                   考试模式
                 </button>
                 <button
-                  onClick={() => setMode('practice')}
+                  onClick={() => handleModeSwitch('practice')}
                   className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${mode === 'practice' ? 'bg-white text-lark-primary shadow-sm' : 'text-lark-gray-5 hover:text-lark-gray-7'}`}
                 >
                   背题模式
                 </button>
               </div>
+              <button 
+                onClick={() => setShowQuestionBank(true)}
+                className="p-1.5 rounded-full bg-lark-gray-1 text-lark-gray-6 hover:text-lark-primary hover:bg-lark-gray-2 transition-colors"
+                title="查看完整题库"
+              >
+                <Table className="w-4 h-4" />
+              </button>
               <button 
                 onClick={() => setIsDrawerOpen(true)}
                 className="px-3 py-1.5 rounded-full bg-lark-gray-1 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-gray-2 transition-colors font-medium"
@@ -571,6 +595,83 @@ function App() {
                 onClick={() => setIsDrawerOpen(false)} 
                 variant="outline" 
                 className="w-full bg-white"
+              >
+                关闭
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 完整题库概览模态框 */}
+      {showQuestionBank && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setShowQuestionBank(false)}
+          />
+          <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="p-4 border-b border-lark-gray-2 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <Table className="w-5 h-5 text-lark-primary" />
+                <h2 className="text-lg font-semibold text-lark-gray-7">完整题库概览 ({questionsData.length}题)</h2>
+              </div>
+              <button 
+                onClick={() => setShowQuestionBank(false)}
+                className="p-1.5 rounded-full hover:bg-lark-gray-2 text-lark-gray-5 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Content - Scrollable Table */}
+            <div className="overflow-auto flex-1 p-4 bg-lark-gray-1">
+              <div className="bg-white rounded-lg border border-lark-gray-2 overflow-hidden shadow-sm">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-lark-gray-1 text-lark-gray-6 font-medium border-b border-lark-gray-2">
+                    <tr>
+                      <th className="px-4 py-3 w-16 text-center">序号</th>
+                      <th className="px-4 py-3 min-w-[200px]">题目 & 选项</th>
+                      <th className="px-4 py-3 w-20 text-center">答案</th>
+                      <th className="px-4 py-3 min-w-[250px]">解析</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-lark-gray-2">
+                    {questionsData.map((q, idx) => (
+                      <tr key={idx} className="hover:bg-lark-gray-1/30 transition-colors">
+                        <td className="px-4 py-3 text-center text-lark-gray-5 font-medium">{idx + 1}</td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-lark-gray-8 mb-1.5">{q.question}</div>
+                          <div className="space-y-0.5">
+                            {q.options.map((opt, i) => (
+                              <div key={i} className={`text-xs ${opt.startsWith(q.answer) ? 'text-lark-primary font-medium' : 'text-lark-gray-5'}`}>
+                                {opt}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className="inline-flex w-6 h-6 items-center justify-center rounded-full bg-lark-success-bg text-lark-success font-bold text-xs border border-lark-success/20">
+                            {q.answer}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-lark-gray-6 text-xs leading-relaxed">
+                          {q.explanation}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-lark-gray-2 bg-lark-gray-1/50 flex-shrink-0 flex justify-end">
+               <Button 
+                onClick={() => setShowQuestionBank(false)} 
+                variant="outline" 
+                className="bg-white"
               >
                 关闭
               </Button>
