@@ -96,6 +96,17 @@ function App() {
       setCurrentIndex(prev => prev + 1);
       setShowAnswer(false);
     } else {
+      // 提交前检查是否所有题目都已作答
+      const unansweredIndices = questions.map((_, index) => index).filter(index => !userAnswers[index]);
+      
+      if (unansweredIndices.length > 0) {
+        // 如果有未答题目，提示用户并跳转到第一个未答题目
+        if (window.confirm(`还有 ${unansweredIndices.length} 道题目未作答，是否跳转到第一道未答题目？`)) {
+           jumpToQuestion(unansweredIndices[0]);
+        }
+        return;
+      }
+
       finishQuiz();
     }
   };
@@ -104,23 +115,6 @@ function App() {
     setCurrentIndex(index);
     setIsDrawerOpen(false);
     setShowAnswer(false);
-  };
-
-  // 模拟自动答题 (Debug 功能)
-  const handleAutoFill = () => {
-    if (window.confirm('确定要自动随机填写所有题目并提交吗？这将用于测试结果页。')) {
-      const simulatedAnswers = {};
-      questions.forEach((q, index) => {
-        // 随机选择一个选项
-        const randomOptionIndex = Math.floor(Math.random() * q.options.length);
-        simulatedAnswers[index] = q.options[randomOptionIndex];
-      });
-      setUserAnswers(simulatedAnswers);
-      
-      // 这里需要稍微延迟一下再结算，或者直接调用结算逻辑
-      // 但由于 setState 是异步的，我们直接用计算出的 answers 去结算比较稳妥
-      calculateResult(simulatedAnswers);
-    }
   };
 
   const calculateResult = (answers) => {
@@ -326,13 +320,6 @@ function App() {
                   背题模式
                 </button>
               </div>
-              <button 
-                onClick={handleAutoFill}
-                className="p-1.5 rounded-full bg-yellow-50 text-yellow-600 hover:bg-yellow-100 active:bg-yellow-200 transition-colors"
-                title="模拟自动答题 (测试用)"
-              >
-                <Zap className="w-3.5 h-3.5" />
-              </button>
               <button 
                 onClick={() => setIsDrawerOpen(true)}
                 className="px-3 py-1.5 rounded-full bg-lark-gray-1 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-gray-2 transition-colors font-medium"
