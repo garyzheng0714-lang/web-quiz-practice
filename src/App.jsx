@@ -323,31 +323,34 @@ function App() {
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-sm font-medium text-lark-gray-7">题目 {progress} / {total}</h1>
             <div className="flex items-center gap-2">
-              <div className="flex bg-lark-gray-2 rounded-lg p-0.5 mr-2">
+              <div className="flex bg-lark-gray-2 rounded-lg p-0.5 mr-1 sm:mr-2">
                 <button
                   onClick={() => handleModeSwitch('exam')}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${mode === 'exam' ? 'bg-white text-lark-primary shadow-sm' : 'text-lark-gray-5 hover:text-lark-gray-7'}`}
+                  className={`px-2 sm:px-3 py-1 rounded-md text-xs font-medium transition-all ${mode === 'exam' ? 'bg-white text-lark-primary shadow-sm' : 'text-lark-gray-5 hover:text-lark-gray-7'}`}
                 >
-                  考试模式
+                  <span className="hidden sm:inline">考试模式</span>
+                  <span className="sm:hidden">考试</span>
                 </button>
                 <button
                   onClick={() => handleModeSwitch('practice')}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${mode === 'practice' ? 'bg-white text-lark-primary shadow-sm' : 'text-lark-gray-5 hover:text-lark-gray-7'}`}
+                  className={`px-2 sm:px-3 py-1 rounded-md text-xs font-medium transition-all ${mode === 'practice' ? 'bg-white text-lark-primary shadow-sm' : 'text-lark-gray-5 hover:text-lark-gray-7'}`}
                 >
-                  背题模式
+                  <span className="hidden sm:inline">背题模式</span>
+                  <span className="sm:hidden">背题</span>
                 </button>
               </div>
               <button 
                 onClick={() => setShowQuestionBank(true)}
-                className="px-3 py-1.5 rounded-full bg-lark-primary/10 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-primary/20 transition-colors font-medium hover:bg-lark-primary/15"
+                className="px-2 sm:px-3 py-1.5 rounded-full bg-lark-primary/10 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-primary/20 transition-colors font-medium hover:bg-lark-primary/15"
                 title="查看完整题库"
               >
                 <Table className="w-3.5 h-3.5" />
-                <span>完整题库</span>
+                <span className="hidden sm:inline">完整题库</span>
+                <span className="sm:hidden">题库</span>
               </button>
               <button 
                 onClick={() => setIsDrawerOpen(true)}
-                className="px-3 py-1.5 rounded-full bg-lark-gray-1 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-gray-2 transition-colors font-medium"
+                className="hidden sm:flex px-3 py-1.5 rounded-full bg-lark-gray-1 text-xs text-lark-primary items-center gap-1.5 active:bg-lark-gray-2 transition-colors font-medium"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 <span>答题卡</span>
