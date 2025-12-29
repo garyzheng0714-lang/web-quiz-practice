@@ -339,10 +339,11 @@ function App() {
               </div>
               <button 
                 onClick={() => setShowQuestionBank(true)}
-                className="p-1.5 rounded-full bg-lark-gray-1 text-lark-gray-6 hover:text-lark-primary hover:bg-lark-gray-2 transition-colors"
+                className="px-3 py-1.5 rounded-full bg-lark-primary/10 text-xs text-lark-primary flex items-center gap-1.5 active:bg-lark-primary/20 transition-colors font-medium hover:bg-lark-primary/15"
                 title="查看完整题库"
               >
-                <Table className="w-4 h-4" />
+                <Table className="w-3.5 h-3.5" />
+                <span>完整题库</span>
               </button>
               <button 
                 onClick={() => setIsDrawerOpen(true)}
