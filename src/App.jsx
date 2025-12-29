@@ -42,14 +42,19 @@ function App() {
   useEffect(() => {
     // 模拟异步加载，确保状态重置
     setTimeout(() => {
-      startNewQuiz();
+      startNewQuiz(mode);
       setIsLoading(false);
     }, 100);
   }, []);
 
-  const startNewQuiz = () => {
-    const shuffled = shuffleArray(questionsData);
-    setQuestions(shuffled);
+  const startNewQuiz = (targetMode = mode) => {
+    let newQuestions;
+    if (targetMode === 'practice') {
+        newQuestions = [...questionsData]; // 背题模式：不打乱，按顺序
+    } else {
+        newQuestions = shuffleArray(questionsData); // 考试模式：打乱顺序
+    }
+    setQuestions(newQuestions);
     setCurrentIndex(0);
     setUserAnswers({});
     setScore(0);
@@ -74,6 +79,7 @@ function App() {
               <li>必须做完所有题目才能提交</li>
               <li>模拟真实考试环境</li>
             </ul>
+            <p className="text-lark-error pt-2 font-medium">注意：切换模式将重新开始答题，当前进度会被重置。</p>
           </div>
         )
       },
@@ -86,7 +92,9 @@ function App() {
               <li>选择选项后立即显示对错和解析</li>
               <li>可随时点击“查看答案”</li>
               <li>适合快速刷题记忆</li>
+              <li>题目将按题库顺序排列</li>
             </ul>
+            <p className="text-lark-error pt-2 font-medium">注意：切换模式将重新开始答题，当前进度会被重置。</p>
           </div>
         )
       }
@@ -98,8 +106,7 @@ function App() {
       content: messages[newMode].content,
       onConfirm: () => {
         setMode(newMode);
-        // 切换模式重置当前题目的显示状态（但保留已选答案）
-        setShowAnswer(false);
+        startNewQuiz(newMode);
         setConfirmDialog(prev => ({ ...prev, isOpen: false }));
       },
       cancelText: "取消",
