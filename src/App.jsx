@@ -29,6 +29,14 @@ function App() {
   const [showAnswer, setShowAnswer] = useState(false); // For practice mode peeking
   const [showQuestionBank, setShowQuestionBank] = useState(false); // 题库概览
   const [searchTerm, setSearchTerm] = useState(""); // 题库搜索关键词
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    content: null,
+    onConfirm: () => {},
+    cancelText: "取消",
+    confirmText: "确定"
+  });
 
   // 初始化：加载并打乱题目
   useEffect(() => {
@@ -56,15 +64,47 @@ function App() {
     if (newMode === mode) return;
     
     const messages = {
-      exam: "确认切换到【考试模式】吗？\n\n• 答题过程不显示正确答案和解析\n• 必须做完所有题目才能提交\n• 模拟真实考试环境",
-      practice: "确认切换到【背题模式】吗？\n\n• 选择选项后立即显示对错和解析\n• 可随时点击“查看答案”\n• 适合快速刷题记忆"
+      exam: {
+        title: "切换到考试模式",
+        content: (
+          <div className="space-y-2 text-sm text-lark-gray-6">
+            <p>确认切换到【考试模式】吗？</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>答题过程不显示正确答案和解析</li>
+              <li>必须做完所有题目才能提交</li>
+              <li>模拟真实考试环境</li>
+            </ul>
+          </div>
+        )
+      },
+      practice: {
+        title: "切换到背题模式",
+        content: (
+          <div className="space-y-2 text-sm text-lark-gray-6">
+            <p>确认切换到【背题模式】吗？</p>
+            <ul className="list-disc pl-4 space-y-1">
+              <li>选择选项后立即显示对错和解析</li>
+              <li>可随时点击“查看答案”</li>
+              <li>适合快速刷题记忆</li>
+            </ul>
+          </div>
+        )
+      }
     };
 
-    if (window.confirm(messages[newMode])) {
-      setMode(newMode);
-      // 切换模式重置当前题目的显示状态（但保留已选答案）
-      setShowAnswer(false); 
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: messages[newMode].title,
+      content: messages[newMode].content,
+      onConfirm: () => {
+        setMode(newMode);
+        // 切换模式重置当前题目的显示状态（但保留已选答案）
+        setShowAnswer(false);
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      },
+      cancelText: "取消",
+      confirmText: "确定"
+    });
   };
 
   // 滚动到顶部
@@ -791,6 +831,41 @@ function App() {
                 className="bg-white"
               >
                 关闭
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 通用确认弹窗 */}
+      {confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6">
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+          />
+          <div className="relative w-full max-w-sm bg-white rounded-xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-lark-gray-7 mb-3">
+                {confirmDialog.title}
+              </h3>
+              <div className="text-lark-gray-6">
+                {confirmDialog.content}
+              </div>
+            </div>
+            
+            <div className="p-4 bg-lark-gray-1/50 border-t border-lark-gray-2 flex justify-end gap-3">
+              <Button 
+                onClick={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))} 
+                variant="outline"
+                className="bg-white"
+              >
+                {confirmDialog.cancelText}
+              </Button>
+              <Button 
+                onClick={confirmDialog.onConfirm}
+              >
+                {confirmDialog.confirmText}
               </Button>
             </div>
           </div>
