@@ -3,7 +3,7 @@ import questionsData from './data/questions.json';
 import { Button } from './components/Button';
 import { Card } from './components/Card';
 import { ProgressBar } from './components/ProgressBar';
-import { CheckCircle, XCircle, AlertCircle, RefreshCw, Trophy, ChevronRight, ChevronLeft, BookOpen, LayoutGrid, Zap, Table, X } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, RefreshCw, Trophy, ChevronRight, ChevronLeft, BookOpen, LayoutGrid, Zap, Table, X, Search } from 'lucide-react';
 
 // Fisher-Yates 洗牌算法
 const shuffleArray = (array) => {
@@ -28,6 +28,7 @@ function App() {
   const [mode, setMode] = useState('exam'); // 'exam' | 'practice'
   const [showAnswer, setShowAnswer] = useState(false); // For practice mode peeking
   const [showQuestionBank, setShowQuestionBank] = useState(false); // 题库概览
+  const [searchTerm, setSearchTerm] = useState(""); // 题库搜索关键词
 
   // 初始化：加载并打乱题目
   useEffect(() => {
@@ -304,7 +305,7 @@ function App() {
 
           {/* 结果页底部作者信息 */}
           <div className="mt-8 text-center text-xs text-lark-gray-4">
-              Designed by 清美栖山路三店 方细晶
+              清美栖山路三店 方细晶
           </div>
         </div>
       </div>
@@ -471,7 +472,7 @@ function App() {
 
           {/* 底部作者信息 */}
           <div className="mt-6 text-center text-xs text-lark-gray-4 pb-2">
-             Designed by 清美栖山路三店 方细晶
+             清美栖山路三店 方细晶
           </div>
         </div>
       </div>
@@ -626,97 +627,151 @@ function App() {
           />
           <div className="relative w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="p-4 border-b border-lark-gray-2 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <Table className="w-5 h-5 text-lark-primary" />
-                <h2 className="text-lg font-semibold text-lark-gray-7">完整题库概览 ({questionsData.length}题)</h2>
+            <div className="p-4 border-b border-lark-gray-2 flex flex-col gap-4 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Table className="w-5 h-5 text-lark-primary" />
+                  <h2 className="text-lg font-semibold text-lark-gray-7">完整题库概览 ({questionsData.length}题)</h2>
+                </div>
+                <button 
+                  onClick={() => setShowQuestionBank(false)}
+                  className="p-1.5 rounded-full hover:bg-lark-gray-2 text-lark-gray-5 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button 
-                onClick={() => setShowQuestionBank(false)}
-                className="p-1.5 rounded-full hover:bg-lark-gray-2 text-lark-gray-5 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              
+              {/* 搜索框 */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-lark-gray-4" />
+                </div>
+                <input
+                  type="text"
+                  className="block w-full pl-10 pr-3 py-2 border border-lark-gray-3 rounded-md leading-5 bg-white placeholder-lark-gray-4 focus:outline-none focus:ring-1 focus:ring-lark-primary focus:border-lark-primary sm:text-sm transition duration-150 ease-in-out"
+                  placeholder="搜索题目、选项或解析..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
             
             {/* Content - Scrollable Table or Cards */}
             <div className="overflow-auto flex-1 p-0 sm:p-4 bg-lark-gray-1">
               
-              {/* Mobile View: Cards */}
-              <div className="sm:hidden space-y-3 p-3">
-                {questionsData.map((q, idx) => (
-                  <div key={idx} className="bg-white rounded-lg p-4 shadow-sm border border-lark-gray-2">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-lark-gray-2 text-lark-gray-6 text-xs font-bold">
-                        {idx + 1}
-                      </span>
-                      <span className="inline-flex w-6 h-6 items-center justify-center rounded-full bg-lark-success-bg text-lark-success font-bold text-xs border border-lark-success/20">
-                         {q.answer}
-                      </span>
+              {/* Filter Data */}
+              {(() => {
+                const filteredQuestions = questionsData.filter(q => 
+                  q.question.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  q.options.some(opt => opt.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  q.explanation.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+
+                if (filteredQuestions.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-center py-12 text-lark-gray-5">
+                      <Search className="w-12 h-12 mb-3 opacity-20" />
+                      <p>未找到匹配的题目</p>
                     </div>
-                    
-                    <div className="mb-3">
-                      <h4 className="font-medium text-lark-gray-8 text-sm mb-2">{q.question}</h4>
-                      <div className="space-y-1 pl-1 border-l-2 border-lark-gray-2">
-                        {q.options.map((opt, i) => (
-                          <div key={i} className={`text-xs pl-2 py-0.5 ${opt.startsWith(q.answer) ? 'text-lark-primary font-medium bg-lark-primary/5 rounded-r' : 'text-lark-gray-5'}`}>
-                            {opt}
+                  );
+                }
+
+                return (
+                  <>
+                    {/* Mobile View: Cards */}
+                    <div className="sm:hidden space-y-3 p-3">
+                      {filteredQuestions.map((q, idx) => (
+                        <div key={idx} className="bg-white rounded-lg p-4 shadow-sm border border-lark-gray-2">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-lark-gray-2 text-lark-gray-6 text-xs font-bold">
+                              {q.id}
+                            </span>
+                            <span className="inline-flex w-6 h-6 items-center justify-center rounded-full bg-lark-success-bg text-lark-success font-bold text-xs border border-lark-success/20">
+                               {q.answer}
+                            </span>
                           </div>
-                        ))}
-                      </div>
+                          
+                          <div className="mb-3">
+                            <h4 className="font-medium text-lark-gray-8 text-sm mb-2">
+                              {q.question.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => 
+                                part.toLowerCase() === searchTerm.toLowerCase() ? <span key={i} className="bg-yellow-200 text-lark-gray-9">{part}</span> : part
+                              )}
+                            </h4>
+                            <div className="space-y-1 pl-1 border-l-2 border-lark-gray-2">
+                              {q.options.map((opt, i) => (
+                                <div key={i} className={`text-xs pl-2 py-0.5 ${opt.startsWith(q.answer) ? 'text-lark-primary font-medium bg-lark-primary/5 rounded-r' : 'text-lark-gray-5'}`}>
+                                  {opt.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, j) => 
+                                    part.toLowerCase() === searchTerm.toLowerCase() ? <span key={j} className="bg-yellow-200 text-lark-gray-9">{part}</span> : part
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="bg-lark-gray-1 rounded-md p-2.5 text-xs">
+                            <div className="flex items-center gap-1.5 text-lark-gray-6 font-medium mb-1">
+                              <AlertCircle className="w-3 h-3 text-lark-primary" />
+                              <span>解析</span>
+                            </div>
+                            <div className="text-lark-gray-5 leading-relaxed text-justify">
+                              {q.explanation.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => 
+                                part.toLowerCase() === searchTerm.toLowerCase() ? <span key={i} className="bg-yellow-200 text-lark-gray-9">{part}</span> : part
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="bg-lark-gray-1 rounded-md p-2.5 text-xs">
-                      <div className="flex items-center gap-1.5 text-lark-gray-6 font-medium mb-1">
-                        <AlertCircle className="w-3 h-3 text-lark-primary" />
-                        <span>解析</span>
-                      </div>
-                      <div className="text-lark-gray-5 leading-relaxed text-justify">
-                        {q.explanation}
-                      </div>
+                    {/* Desktop View: Table */}
+                    <div className="hidden sm:block bg-white rounded-lg border border-lark-gray-2 overflow-hidden shadow-sm">
+                      <table className="w-full text-sm text-left">
+                        <thead className="bg-lark-gray-1 text-lark-gray-6 font-medium border-b border-lark-gray-2">
+                          <tr>
+                            <th className="px-4 py-3 w-16 text-center">序号</th>
+                            <th className="px-4 py-3 min-w-[200px]">题目 & 选项</th>
+                            <th className="px-4 py-3 w-20 text-center">答案</th>
+                            <th className="px-4 py-3 min-w-[250px]">解析</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-lark-gray-2">
+                          {filteredQuestions.map((q, idx) => (
+                            <tr key={idx} className="hover:bg-lark-gray-1/30 transition-colors">
+                              <td className="px-4 py-3 text-center text-lark-gray-5 font-medium">{q.id}</td>
+                              <td className="px-4 py-3">
+                                <div className="font-medium text-lark-gray-8 mb-1.5">
+                                  {q.question.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => 
+                                    part.toLowerCase() === searchTerm.toLowerCase() ? <span key={i} className="bg-yellow-200 text-lark-gray-9">{part}</span> : part
+                                  )}
+                                </div>
+                                <div className="space-y-0.5">
+                                  {q.options.map((opt, i) => (
+                                    <div key={i} className={`text-xs ${opt.startsWith(q.answer) ? 'text-lark-primary font-medium' : 'text-lark-gray-5'}`}>
+                                      {opt.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, j) => 
+                                        part.toLowerCase() === searchTerm.toLowerCase() ? <span key={j} className="bg-yellow-200 text-lark-gray-9">{part}</span> : part
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span className="inline-flex w-6 h-6 items-center justify-center rounded-full bg-lark-success-bg text-lark-success font-bold text-xs border border-lark-success/20">
+                                  {q.answer}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-lark-gray-6 text-xs leading-relaxed">
+                                {q.explanation.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) => 
+                                  part.toLowerCase() === searchTerm.toLowerCase() ? <span key={i} className="bg-yellow-200 text-lark-gray-9">{part}</span> : part
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop View: Table */}
-              <div className="hidden sm:block bg-white rounded-lg border border-lark-gray-2 overflow-hidden shadow-sm">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-lark-gray-1 text-lark-gray-6 font-medium border-b border-lark-gray-2">
-                    <tr>
-                      <th className="px-4 py-3 w-16 text-center">序号</th>
-                      <th className="px-4 py-3 min-w-[200px]">题目 & 选项</th>
-                      <th className="px-4 py-3 w-20 text-center">答案</th>
-                      <th className="px-4 py-3 min-w-[250px]">解析</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-lark-gray-2">
-                    {questionsData.map((q, idx) => (
-                      <tr key={idx} className="hover:bg-lark-gray-1/30 transition-colors">
-                        <td className="px-4 py-3 text-center text-lark-gray-5 font-medium">{idx + 1}</td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-lark-gray-8 mb-1.5">{q.question}</div>
-                          <div className="space-y-0.5">
-                            {q.options.map((opt, i) => (
-                              <div key={i} className={`text-xs ${opt.startsWith(q.answer) ? 'text-lark-primary font-medium' : 'text-lark-gray-5'}`}>
-                                {opt}
-                              </div>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span className="inline-flex w-6 h-6 items-center justify-center rounded-full bg-lark-success-bg text-lark-success font-bold text-xs border border-lark-success/20">
-                            {q.answer}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-lark-gray-6 text-xs leading-relaxed">
-                          {q.explanation}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Footer */}
